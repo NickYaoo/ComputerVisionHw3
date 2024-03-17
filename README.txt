@@ -1,4 +1,4 @@
-<YOUR NAME>
+Nicklaus Yao
 Computational Vision Homework 3
 
 **This is Sample README file -- Note that threshold values are indicative and not the ones that you should use necessarily.
