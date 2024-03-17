@@ -26,6 +26,30 @@ void ConvertToBinary(const string &input_filename, int threshold, const string &
   cout << "Input filename: " << input_filename << endl;
   cout << "Threshold: " << threshold << endl;
   cout << "Output filename: " << output_filename << endl;
+    // Image read: Taken from the sample of image_demo.cc
+  Image an_image;
+  if (!ReadImage(input_filename, &an_image)) {
+    cout <<"Can't open file " << &input_filename << endl;
+  }
+
+  // iterate through every single pixel in the input file
+  for(int i = 0; i < an_image.num_rows(); i++){
+    for(int j = 0; j < an_image.num_columns(); j++){
+      // GetPixel returns an integer that is comparable to threshold
+      if (an_image.GetPixel(i,j) >= threshold){
+        // Note: 255 = white
+        an_image.SetPixel(i,j, 255);
+      }
+      else{
+        // Note: 0 = Black
+        an_image.SetPixel(i,j,0);
+      }
+    }
+  }
+
+  if (!WriteImage(output_filename, an_image)){
+    cout << "Can't write to file " << &output_filename << endl;
+  }
 }
 
 int main(int argc, char **argv){  
