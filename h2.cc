@@ -1,5 +1,5 @@
 //
-// <YOUR NAME>
+// Nicklaus Yao
 // Computational Vision Homework 3
 // Program 2
 //

@@ -44,7 +44,6 @@ void ComputeEdgeImage(const string &input_filename, const string &output_filenam
                      {0, 0, 0},
                      {-1, -2, -1}};
 
-cout << "Everything ok here" << endl;
   // NOTE:
   // [kernelX-1, kernelY-1]  | [kernelX-1, kernelY] | [kernelX-1, kernelY+1]
   // [kernelX, kernelY-1]    | [kernelX, kernelY]   | [kernelX, kernelY+1]

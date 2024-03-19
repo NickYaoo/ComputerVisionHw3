@@ -9,7 +9,7 @@ Computational Vision Homework 3
 4. Input files same as the ones provided.
 
 Program_1 Edge image
-    - Filter used is: 
+    - Filter used is: Sobel
 
 Program_2 Edge thresholding.
     - The threshold used is: 90
