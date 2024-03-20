@@ -35,10 +35,11 @@ void ComputeHoughTransform(const string &input_filename, const string & output_h
   // Initalize Parameters
   int rows = image.num_rows();
   int cols= image.num_columns();
+
   // the sigmas/stepping function
   double theta_res = 1.0; // in degrees ==> M_PI / 180
   double rho_res = 0.5;
-  double max_rho = sqrt(pow(rows,2) + pow(cols,2));
+  double max_rho = sqrt(pow(rows,2) + pow(cols,2)); // sqrt( M^2 + N^2)
 
   // Accumulator Array [1...R, 1... T]
   int rho_bins = max_rho / rho_res;
@@ -46,8 +47,8 @@ void ComputeHoughTransform(const string &input_filename, const string & output_h
   vector<vector<int>> hough_acc(theta_bins, vector<int>(rho_bins,0));
 
   // Hough Transform
-  int max_voting = 0.0;
-  for(int i = 0; i<rows; i++){
+  int max_voting = 0;
+  for(int i = 0; i< rows; i++){
     for(int j = 0; j < cols; j++){
       // check if this is labeled an Edge aka 255
       if(image.GetPixel(i,j) == 255){
@@ -57,6 +58,7 @@ void ComputeHoughTransform(const string &input_filename, const string & output_h
           double rho = i * cos(theta_h) + j * sin(theta_h);
 
           // if rho = 5.3, k = 5
+          // initially wanted to use just rho, but try to "normalize" based on factors that influence image size
           int k = static_cast<int> (rho*rho_res / max_rho * rho_bins);
           if(k >= 0 && k < rho_bins){
             hough_acc[h][k]++;
@@ -84,6 +86,7 @@ void ComputeHoughTransform(const string &input_filename, const string & output_h
 
   for (int i = 0; i < theta_bins; i++) {
     for (int j = 0; j < rho_bins; j++) {
+      // make sure we do not have any undefined behavior when voting count is above 255
       if(hough_acc[i][j] >= 255){
         output.SetPixel(i, j, 255);
       }

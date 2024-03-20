@@ -20,9 +20,16 @@
 using namespace std;
 using namespace ComputerVisionProjects;
 
-
+/**
+ * @brief determines if a pixel is in bound during Raster Scan
+ * 
+ * @param row 
+ * @param col 
+ * @return true 
+ * @return false 
+ */
 bool inBounds( int row, int col){
-  // number of rows and columns
+  // we do not need to worry about out of bounds to the right (greater than max)
   if (row < 0)
     return false;
   if (col < 0)
@@ -47,6 +54,7 @@ void ComputeAndDrawLinesFromHough(const string &input_filename, const string &in
     cout <<"Can't open file " << input_filename << endl;
   }
 
+  // Declare for reuse later
   int rows = image.num_rows();
   int cols = image.num_columns();
 
@@ -56,7 +64,10 @@ void ComputeAndDrawLinesFromHough(const string &input_filename, const string &in
         std::cerr << "Error: Unable to open file " << input_voting_array_filename << std::endl;
     }
 
+    // Stores the hough array from h3
     std::vector<std::vector<int>> voting_array;
+
+    // typical sStream structure for reading in lines and each value
     std::string line;
     while (std::getline(file, line)) {
         std::vector<int> row;
@@ -80,7 +91,8 @@ void ComputeAndDrawLinesFromHough(const string &input_filename, const string &in
         }
     }
 
-    // After Binary Image: Run Sequential Labeling to make into multiple objects
+  // After Binary Image: Run Sequential Labeling to make into multiple objects
+  // Use the code from the Previous Assignment
   int acc_rows = voting_array.size();
   int acc_cols = voting_array[0].size();
 
@@ -89,6 +101,7 @@ void ComputeAndDrawLinesFromHough(const string &input_filename, const string &in
 
   DisjSets dSets(acc_rows * acc_cols);
 
+  // Code structure from p2 of Assignment 2
   int label_counter = 0; //running count
   // First Pass
   for(int i = 0; i < acc_rows; i++){
@@ -97,11 +110,14 @@ void ComputeAndDrawLinesFromHough(const string &input_filename, const string &in
       if (scan_array[i][j] > 0){
         // initalize early because of reuse
         // if out of bounds consider it to be 0
-        int b = inBounds(i, j - 1) ? scan_array[i][j - 1] : 0;
-        int c = inBounds(i - 1, j) ? scan_array[i - 1][j] : 0;
-        int d = inBounds(i - 1, j - 1) ? scan_array[i - 1][j - 1] : 0;
-
-
+        int b=0 , c=0, d = 0;
+        if (inBounds(i, j - 1)){
+          b = scan_array[i][j];}
+        if (inBounds(i-1, j)){
+          c = scan_array[i][j];}
+        if (inBounds(i-1, j - 1)){
+          d = scan_array[i][j];}
+        
         // Check for "d"
         if(d != 0){
           scan_array[i][j]=d;
@@ -134,13 +150,12 @@ void ComputeAndDrawLinesFromHough(const string &input_filename, const string &in
   }
 
 
-  // 2 by 2 Raster Scan Pass 2 - Coloring of Each Object
+  // 2 by 2 Raster Scan Pass 2 - Used from Assignment 2
   for(int i = 0; i < acc_rows; i++){
     for(int j = 0; j < acc_cols; j++){
       // Store the current label
       int temp = dSets.find(scan_array[i][j]);
       if(temp != 0){
-        // used for converting to unique gray scaling
         scan_array[i][j] = temp;
       }
     }
@@ -160,7 +175,9 @@ void ComputeAndDrawLinesFromHough(const string &input_filename, const string &in
           }
           // calculate weightedX
           dict[label][0] += (i * voting);
+          // calculate weightedY
           dict[label][1] += (j * voting);
+          // calculate sum of weights
           dict[label][2] += (voting);
           }
       }
@@ -177,7 +194,6 @@ void ComputeAndDrawLinesFromHough(const string &input_filename, const string &in
     }
 
     // Center: pho, theta ==> use this to find the points and draw a line
-
     // Given rho and theta, find the points and draw the line
     // Go through all 4 possibilites to find the 2 points - MAKE SURE THETA IS IN RADIANS
     for(auto& f : dict){
@@ -196,7 +212,7 @@ void ComputeAndDrawLinesFromHough(const string &input_filename, const string &in
     }
 
       // case 2:
-      double y2 = 0;
+    double y2 = 0;
     double x2 = rho/cos(theta);
     if(x2 >= 0 && x2 < rows){
       linePoints.push_back(x2);
@@ -204,7 +220,6 @@ void ComputeAndDrawLinesFromHough(const string &input_filename, const string &in
     }
 
     // case 3:
-
     double x3 = rows - 1;
     double y3 = (rho - x3*cos(theta)) / sin(theta);
     if(y3 >= 0 && y3 < cols){
@@ -215,11 +230,12 @@ void ComputeAndDrawLinesFromHough(const string &input_filename, const string &in
 
     // case 4:
     int y4 = cols -1;
-    int x4 = (rho-y4*sin(theta) / cos(theta));
+    int x4 = (rho-y4*sin(theta)) / cos(theta);
     if(x4 >= 0 && x4 < rows){
       linePoints.push_back(x4);
       linePoints.push_back(y4);
     }
+    // Draw white line for each bright area
     DrawLine(int(linePoints[0]), int(linePoints[1]), int(linePoints[2]), int(linePoints[3]), 255, &image);
 }
 
